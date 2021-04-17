@@ -32,7 +32,7 @@ models = {
     "SGNS + UnCleanTrainSet + th=0.5":5,
     "SGNS + UnCleanTrainSet + th=1":6
     }
-data = ()
+data = []
 
 def openFile():
     filepath = fd.askopenfilename(title = "Select file",filetypes = (("CSV Files","*.csv"),))
@@ -47,11 +47,7 @@ def testPhraseDet():
     
     # clean the data
     for record in output_table.get_children():
-        output_table.delete(record)
-        
-    for record in summary_table.get_children():
-        summary_table.delete(record)
-        
+        output_table.delete(record)        
         
     if models[configs.get()] == 1:
         data = model1(queries, expected_phrase)
@@ -65,27 +61,27 @@ def testPhraseDet():
         data = model5(queries, expected_phrase)
     elif models[configs.get()] == 6:
         data = model6(queries, expected_phrase)
-    exp_ph = det_ph = det_t = det_f = not_det = 0
+    exp_ph = det_ph = det_t = det_f = not_det = not_ph = 0
+    
     for i in range(0, len(data)):
-        # ("Query", "Expected Phrase", "Detected Phrase", "N Expected", "Detected True", "Detected False", "Not Detected")
-        exp_ph+=len(data[i][1])
-        det_ph+=len(data[i][2])
+        exp_ph+=len(data[i][1].split(', '))
+        det_ph+=len(data[i][2].split(', '))
         det_t+=data[i][4]
         det_f+=data[i][5]
         not_det+=data[i][6]
         output_table.insert(parent='', index='end', iid=i, text="", values=data[i])
+        for ph in data[i][2].split(', '):
+            if len(ph.split(' ')) < 2:
+                not_ph+=1
     
-    # ("Total Queries","N Expected", "Phrase Detected",  "Detected True", "Detected False", "Not Detected")
-    summ = ((len(queries)), exp_ph, det_ph, det_t, det_f, not_det)
-    summary_table.insert(parent='', index='end', iid=i, text="", values=summ)
-    # df.to_csv('output.csv')
-    # print("exported")
+    summ = (configs.get(), (len(queries)), exp_ph, det_ph, det_t, det_f, not_det, not_ph)
+    summary_table.insert(parent='', index='end', text="", values=summ)
 
-# def exportToCSV(data):
-    # target = open('results.csv', 'w')
-    # for line in data:
-    #     for attr in data:
-    #         target.write("\""+attr+"\""+",")
+def exportToCSV(data):
+    df = pd.DataFrame(data, columns = ["Query", "Expected Phrase", "Detected Phrase", "N Expected", "Detected True", "Detected False", "Not Detected", "Total Detected"])
+    df.to_csv('output.csv')
+    print("output.csv exported")
+    msg = tk.messagebox.showinfo(title="Export to CSV", message="Export Successful")
     
     
 # set window label and main frame
@@ -146,8 +142,8 @@ output_label.pack(anchor=W, pady=5)
 
 # scrollbar for table
 vsb = ttk.Scrollbar(output_frame, orient="vertical")
-hsb = ttk.Scrollbar(output_frame, orient="horizontal")
 vsb.pack(side=RIGHT, fill=Y)
+hsb = ttk.Scrollbar(output_frame, orient="horizontal")
 hsb.pack(side=BOTTOM, fill=X)
 
 # set tree view widgets
@@ -160,7 +156,7 @@ style.configure("Treeview",
 vsb.config(command=output_table.yview)
 hsb.config(command=output_table.xview)
 # define column
-output_table['columns'] = ("Query", "Expected Phrase", "Detected Phrase", "N Expected", "Detected True", "Detected False", "Not Detected")
+output_table['columns'] = ("Query", "Expected Phrase", "Detected Phrase", "N Expected", "Detected True", "Detected False", "Not Detected", "Total Detected")
 
 # formate the columns
 output_table.column("#0", anchor=W, width=0, stretch=NO)
@@ -171,6 +167,7 @@ output_table.column("N Expected", anchor=CENTER, width=125)
 output_table.column("Detected True", anchor=CENTER, width=125)
 output_table.column("Detected False", anchor=CENTER, width=125)
 output_table.column("Not Detected", anchor=CENTER, width=115)
+output_table.column("Total Detected", anchor=CENTER, width=115)
 
 # create headings
 output_table.heading("#0", anchor=W, text="")
@@ -181,38 +178,42 @@ output_table.heading("N Expected", anchor=CENTER, text="N Expected")
 output_table.heading("Detected True", anchor=CENTER, text="Detected True")
 output_table.heading("Detected False", anchor=CENTER, text="Detected False")
 output_table.heading("Not Detected", anchor=CENTER, text="Not Detected")
-
-# data = ("Apakah frasa itu?", "frasa", "frasa", 1, 1, 0, 0)
-#insert data
-# for i in range (0,24):
-#     output_table.insert(parent='', index='end', iid=i, text="", values=data)
+output_table.heading("Total Detected", anchor=CENTER, text="Total Detected")
 
 output_table.pack()
 output_frame.pack(anchor=W, padx=20, pady=5)
 
+# set label Path file
+history_label = tk.Label(master=window, text="History Testing (Summaries)")
+history_label.pack(anchor=W, padx=20, pady=5)
+
 # table summary
 summary_table = ttk.Treeview(master=window)
-summary_table['columns'] = ("Total Queries","N Expected", "Phrase Detected",  "Detected True", "Detected False", "Not Detected")
+summary_table['columns'] = ("Configuration", "Total Queries","N Expected", "Phrase Detected",  "Detected True", "Detected False", "Not Detected", "Phrase < 2 words")
 
 summary_table.column("#0", anchor=W, width=0, stretch=NO)
+summary_table.column("Configuration", anchor=W, width=300)
 summary_table.column("Total Queries", anchor=CENTER, width=125)
 summary_table.column("N Expected", anchor=CENTER, width=125)
 summary_table.column("Phrase Detected", anchor=CENTER, width=125)
 summary_table.column("Detected True", anchor=CENTER, width=125)
 summary_table.column("Detected False", anchor=CENTER, width=125)
 summary_table.column("Not Detected", anchor=CENTER, width=115)
+summary_table.column("Phrase < 2 words", anchor=CENTER, width=115)
 
 summary_table.heading("#0", anchor=W, text="")
+summary_table.heading("Configuration", anchor=CENTER, text="Configuration")
 summary_table.heading("Total Queries", anchor=CENTER, text="Total Queries")
 summary_table.heading("N Expected", anchor=CENTER, text="N Expected")
 summary_table.heading("Phrase Detected", anchor=CENTER, text="Phrase Detected")
 summary_table.heading("Detected True", anchor=CENTER, text="Detected True")
 summary_table.heading("Detected False", anchor=CENTER, text="Detected False")
 summary_table.heading("Not Detected", anchor=CENTER, text="Not Detected")
+summary_table.heading("Phrase < 2 words", anchor=CENTER, text="Phrase < 2 words")
 
 summary_table.pack(pady=10)
 # export and close button
-export_btn = tk.Button(master=window, text="Export Result to CSV", command=lambda: exportToCSV())
+export_btn = tk.Button(master=window, text="Export Result to CSV", command=lambda: exportToCSV(data))
 export_btn.pack(ipadx=10, pady=5)
 
 # button exit right
