@@ -13,6 +13,7 @@ import tkinter as tk
 import pandas as pd
 from gensim.models.word2vec import Text8Corpus
 from gensim.models.phrases import Phrases
+import time
 
 # importing modules
 from clean_text import *
@@ -48,7 +49,8 @@ def testPhraseDet():
     # clean the data
     for record in output_table.get_children():
         output_table.delete(record)        
-        
+    
+    start = time.time()
     if models[configs.get()] == 1:
         data = model1(queries, expected_phrase)
     elif models[configs.get()] == 2:
@@ -68,7 +70,7 @@ def testPhraseDet():
             t+=1
         output_table.insert(parent='', index='end', iid=i, text="", values=data[i])
     
-    summ = (configs.get(), (len(data)), t, (len(data)-t))
+    summ = (configs.get(), (len(data)), t, (len(data)-t), (time.time()-start))
     summary_table.insert(parent='', index='end', text="", values=summ)
 
 def exportToCSV(data):
@@ -175,19 +177,21 @@ history_label.pack(anchor=W, padx=20, pady=5)
 
 # table summary
 summary_table = ttk.Treeview(master=window)
-summary_table['columns'] = ("Configuration", "Phrase Expected",  "Detected", "Not Detected")
+summary_table['columns'] = ("Configuration", "Phrase Expected",  "Detected", "Not Detected", "Execution Time (s)")
 
 summary_table.column("#0", anchor=W, width=0, stretch=NO)
 summary_table.column("Configuration", anchor=W, width=300)
 summary_table.column("Phrase Expected", anchor=CENTER, width=125)
 summary_table.column("Detected", anchor=CENTER, width=125)
 summary_table.column("Not Detected", anchor=CENTER, width=115)
+summary_table.column("Execution Time (s)", anchor=CENTER, width=200)
 
 summary_table.heading("#0", anchor=W, text="")
 summary_table.heading("Configuration", anchor=CENTER, text="Configuration")
 summary_table.heading("Phrase Expected", anchor=CENTER, text="Phrase Detected")
 summary_table.heading("Detected", anchor=CENTER, text="Detected")
 summary_table.heading("Not Detected", anchor=CENTER, text="Not Detected")
+summary_table.heading("Execution Time (s)", anchor=CENTER, text="Execution Time (s)")
 
 summary_table.pack(pady=10)
 # export and close button
