@@ -10,3 +10,6 @@ Indonesian Phrase Detection using SGNS (GENSIM)
 ## The Datasets
 1. Training dataset from wikidump (2021). Splitted by sentences ('\n')
 2. Testing dataset is a .csv format list of queries and its label (expected phrase) with name of label: 'pertanyaan' and 'label' (so you can make your wn dataset for testing if you want to).
+
+## How to cite?
+Soon to be added (after publication)
