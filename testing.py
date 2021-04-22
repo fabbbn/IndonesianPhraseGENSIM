@@ -14,7 +14,7 @@ import pandas as pd
 
 def model1(q, p):
     print("load model...")
-    model = Phrases.load('phrase_model1.pkl')
+    model = Phrases.load('./models/phrase_model1.pkl')
     print("load model successful")
     data = []
     pattern = re.compile('^.+\_.+$')
@@ -34,7 +34,7 @@ def model1(q, p):
 
 def model2(q, p):
     print("load model...")
-    model = Phrases.load('phrase_model2.pkl')
+    model = Phrases.load('./models/phrase_model2.pkl')
     print("load model successful")
     data = []
     pattern = re.compile('^.+\_.+$')
@@ -55,7 +55,7 @@ def model2(q, p):
 
 def model3(q, p):
     print("load model...")
-    model = Phrases.load('phrase_model3.pkl')
+    model = Phrases.load('./models/phrase_model3.pkl')
     print("load model successful")
     data = []
     pattern = re.compile('^.+\_.+$')
@@ -76,7 +76,7 @@ def model3(q, p):
 
 def model4(q, p):
     print("load model...")
-    model = Phrases.load('phrase_model6.pkl')
+    model = Phrases.load('./models/phrase_model6.pkl')
     print("load model successful")
     data = []
     pattern = re.compile('^.+\_.+$')
@@ -97,7 +97,7 @@ def model4(q, p):
 
 def model5(q, p):
     print("load model...")
-    model = Phrases.load('phrase_model7.pkl')
+    model = Phrases.load('./models/phrase_model7.pkl')
     print("load model successful")
     data = []
     pattern = re.compile('^.+\_.+$')
@@ -118,7 +118,7 @@ def model5(q, p):
 
 def model6(q, p):
     print("load model...")
-    model = Phrases.load('phrase_model8.pkl')
+    model = Phrases.load('./models/phrase_model8.pkl')
     print("load model successful")
     data = []
     pattern = re.compile('^.+\_.+$')
