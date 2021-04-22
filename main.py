@@ -61,24 +61,18 @@ def testPhraseDet():
         data = model5(queries, expected_phrase)
     elif models[configs.get()] == 6:
         data = model6(queries, expected_phrase)
-    exp_ph = det_ph = det_t = det_f = not_det = not_ph = 0
-    
+        
+    t=0
     for i in range(0, len(data)):
-        exp_ph+=len(data[i][1].split(', '))
-        det_ph+=len(data[i][2].split(', '))
-        det_t+=data[i][4]
-        det_f+=data[i][5]
-        not_det+=data[i][6]
+        if data[i][3]==1:
+            t+=1
         output_table.insert(parent='', index='end', iid=i, text="", values=data[i])
-        for ph in data[i][2].split(', '):
-            if len(ph.split(' ')) < 2:
-                not_ph+=1
     
-    summ = (configs.get(), (len(queries)), exp_ph, det_ph, det_t, det_f, not_det, not_ph)
+    summ = (configs.get(), (len(data)), t, (len(data)-t))
     summary_table.insert(parent='', index='end', text="", values=summ)
 
 def exportToCSV(data):
-    df = pd.DataFrame(data, columns = ["Query", "Expected Phrase", "Detected Phrase", "N Expected", "Detected True", "Detected False", "Not Detected", "Total Detected"])
+    df = pd.DataFrame(data, columns = ["Query", "Expected Phrase", "Detected Phrase", "True/False"])
     df.to_csv('output.csv')
     print("output.csv exported")
     msg = tk.messagebox.showinfo(title="Export to CSV", message="Export Successful")
@@ -156,29 +150,21 @@ style.configure("Treeview",
 vsb.config(command=output_table.yview)
 hsb.config(command=output_table.xview)
 # define column
-output_table['columns'] = ("Query", "Expected Phrase", "Detected Phrase", "N Expected", "Detected True", "Detected False", "Not Detected", "Total Detected")
+output_table['columns'] = ("Query", "Expected Phrase", "Detected Phrase", "True/False")
 
 # formate the columns
 output_table.column("#0", anchor=W, width=0, stretch=NO)
 output_table.column("Query", anchor=W, width=700)
 output_table.column("Expected Phrase", anchor=W, width=300)
 output_table.column("Detected Phrase", anchor=W, width=300)
-output_table.column("N Expected", anchor=CENTER, width=125)
-output_table.column("Detected True", anchor=CENTER, width=125)
-output_table.column("Detected False", anchor=CENTER, width=125)
-output_table.column("Not Detected", anchor=CENTER, width=115)
-output_table.column("Total Detected", anchor=CENTER, width=115)
+output_table.column("True/False", anchor=CENTER, width=125)
 
 # create headings
 output_table.heading("#0", anchor=W, text="")
 output_table.heading("Query", anchor=W, text="Query")
 output_table.heading("Expected Phrase", anchor=W, text="Expected Phrase")
 output_table.heading("Detected Phrase", anchor=W, text="Detected Phrase")
-output_table.heading("N Expected", anchor=CENTER, text="N Expected")
-output_table.heading("Detected True", anchor=CENTER, text="Detected True")
-output_table.heading("Detected False", anchor=CENTER, text="Detected False")
-output_table.heading("Not Detected", anchor=CENTER, text="Not Detected")
-output_table.heading("Total Detected", anchor=CENTER, text="Total Detected")
+output_table.heading("True/False", anchor=CENTER, text="True/False")
 
 output_table.pack()
 output_frame.pack(anchor=W, padx=20, pady=5)
@@ -189,27 +175,19 @@ history_label.pack(anchor=W, padx=20, pady=5)
 
 # table summary
 summary_table = ttk.Treeview(master=window)
-summary_table['columns'] = ("Configuration", "Total Queries","N Expected", "Phrase Detected",  "Detected True", "Detected False", "Not Detected", "Phrase < 2 words")
+summary_table['columns'] = ("Configuration", "Phrase Expected",  "Detected", "Not Detected")
 
 summary_table.column("#0", anchor=W, width=0, stretch=NO)
 summary_table.column("Configuration", anchor=W, width=300)
-summary_table.column("Total Queries", anchor=CENTER, width=125)
-summary_table.column("N Expected", anchor=CENTER, width=125)
-summary_table.column("Phrase Detected", anchor=CENTER, width=125)
-summary_table.column("Detected True", anchor=CENTER, width=125)
-summary_table.column("Detected False", anchor=CENTER, width=125)
+summary_table.column("Phrase Expected", anchor=CENTER, width=125)
+summary_table.column("Detected", anchor=CENTER, width=125)
 summary_table.column("Not Detected", anchor=CENTER, width=115)
-summary_table.column("Phrase < 2 words", anchor=CENTER, width=115)
 
 summary_table.heading("#0", anchor=W, text="")
 summary_table.heading("Configuration", anchor=CENTER, text="Configuration")
-summary_table.heading("Total Queries", anchor=CENTER, text="Total Queries")
-summary_table.heading("N Expected", anchor=CENTER, text="N Expected")
-summary_table.heading("Phrase Detected", anchor=CENTER, text="Phrase Detected")
-summary_table.heading("Detected True", anchor=CENTER, text="Detected True")
-summary_table.heading("Detected False", anchor=CENTER, text="Detected False")
+summary_table.heading("Phrase Expected", anchor=CENTER, text="Phrase Detected")
+summary_table.heading("Detected", anchor=CENTER, text="Detected")
 summary_table.heading("Not Detected", anchor=CENTER, text="Not Detected")
-summary_table.heading("Phrase < 2 words", anchor=CENTER, text="Phrase < 2 words")
 
 summary_table.pack(pady=10)
 # export and close button
